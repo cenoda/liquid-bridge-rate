@@ -1,36 +1,71 @@
 # Liquid Bridge Rate - Mindustry V8 JS Mod
 
+Configure the total number of `moveLiquid()` calls for Bridge Conduits and Phase Conduits.
+The default is 2 calls per simulation update.
+
+## Install or update
+
 In Mindustry, open **Mods > Import Mod > Import from GitHub**, enter the following repository, and restart the game:
 
 ```text
 cenoda/liquid-bridge-rate
 ```
 
-Once the mod is indexed, search the mod browser for **Liquid Bridge Rate** or **liquid-bridge-rate**.
-New repositories can take a few hours to appear after the browser list refreshes.
-You can also install a downloaded ZIP through **Mods > Import Mod > Import from File**.
+Version **1.0.2** replaces the implementation that caused an iOS map-loading crash in versions 1.0.0 and 1.0.1.
+Fully restart the game after updating so the old building factories and callbacks are discarded.
 
-Open **Settings > Liquid Bridges** to select 0.5, 1, 2, 3, or 4 calls per update.
-The default is 2, and changes take effect immediately.
+Once indexed, the mod is searchable in the mod browser as **Liquid Bridge Rate** or **liquid-bridge-rate**.
+A new repository can take a few hours to appear after the browser list refreshes.
+You can also install the ZIP through **Mods > Import Mod > Import from File**.
 
-| Setting | `moveLiquid()` calls per eligible update |
+## Settings
+
+Open **Settings > Liquid Bridges**. Changes apply on the next simulation update.
+
+| Setting | Total calls |
 | --- | --- |
-| 0.5 | One call every two updates |
-| 1 | One vanilla call |
+| 0.5 | Skip transport to the linked bridge on alternating simulation updates |
+| 1 | One vanilla call per eligible update |
 | 2 (default) | One vanilla call plus one additional call |
 | 3 | One vanilla call plus two additional calls |
 | 4 | One vanilla call plus three additional calls |
 
-The mod applies to the Bridge Conduit (`bridge-conduit`) and Phase Conduit (`phase-conduit`).
-Link validation, enabled-state checks, warmup requirements, and dumping liquid from the receiving bridge to nearby blocks follow vanilla behavior.
-At 0.5 calls per update, only transport to the linked bridge is skipped on alternate eligible updates; other building updates continue.
-Each call recalculates liquid pressure and available liquid, so the call count does not guarantee a proportional increase in actual flow.
+Link validation, enabled-state checks, warmup requirements, and output dumping follow vanilla behavior.
+Each call recalculates pressure and available liquid. Call counts do not guarantee a proportional increase in actual flow.
+Additional calls run after the game's building updates, so their order differs from executing multiple transfers inside one building's update.
 
-For multiplayer, install the mod on the host/server and use its settings.
-A joining player's settings cannot change another server's behavior. Dedicated servers use the default of 2 calls per update.
-Other mods that replace `buildType` for the same two blocks may conflict with this mod.
-To integrate this into an existing JS mod, copy `scripts/main.js` and the `bundles` entries, then restart the game.
+The mod applies to `bridge-conduit` and `phase-conduit`, for all teams.
+In multiplayer, the host/server controls the rate; the additional simulation is disabled on joining clients.
+Dedicated servers default to 2 calls per update.
 
-Based on `LiquidBridge.LiquidBridgeBuild.updateTransport()` in Mindustry V8 build 160.7.
-The mod passed 42 assertions on a V8 build 160.7 dedicated server, covering mod loading, call counts for both bridges,
-warmup requirements, independent building behavior, and immediate setting changes. The graphical settings screen has not been tested at runtime.
+## Implementation and compatibility
+
+The shipped script uses ordinary JavaScript functions and existing game interfaces.
+It keeps vanilla building factories, building classes, and save formats.
+It does not use `JavaAdapter`, `extend`, reflection, replacement building factories, or additional JVM class files.
+It contains no campaign-reset, sector-deletion, or save-file-writing code.
+
+At 0.5, the script temporarily closes the existing liquid transport warmup guard before alternating simulation updates.
+After the building update, it restores the warmup progression that vanilla would have produced.
+It also restores pending markers before save writes, world changes, resets, and the next frame.
+Other building updates, including consumption, link checks, animation, and dumping, continue.
+An unexpected callback error disables the mod's changes until restart and restores pending markers.
+Other mods that alter bridge transport or warmup can still interact with this behavior.
+
+## Validation
+
+Tested against Mindustry V8 build 160.7:
+
+- 84 dedicated-server assertions: total call counts for both bridges at every setting; disabled, unlinked, and reverse-linked bridges; warmup progression; live setting changes; pause guards; save cleanup; save reloads; and native building factory identity.
+- 34 JavaScript assertions: startup and settings UI registration with adapter/helper APIs blocked, read-only building factories, lifecycle cleanup, simulation guards, and failure cleanup.
+- Script registration in Rhino interpreter mode (`optimizationLevel = -1`, as used on iOS), with the dynamic class-adapter entry point blocked.
+- Fresh Infested Canyons generation, loading an existing Infested Canyons save, and a save/load round trip with class adapters blocked. Native liquid bridge classes and player cores remained present.
+
+Run the portable checks with:
+
+```sh
+node tests/check-script.js
+```
+
+An iOS device and its graphical settings screen were not available for direct execution testing.
+The interpreter checks do not constitute an iOS device test.
