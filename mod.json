@@ -1,9 +1,9 @@
 {
   "name": "liquid-bridge-rate",
-  "displayName": "액체 다리 이동 횟수",
+  "displayName": "Liquid Bridge Rate",
   "author": "cenoda",
   "repo": "cenoda/liquid-bridge-rate",
-  "description": "액체 다리와 위상 액체 다리의 moveLiquid 호출 횟수를 설정합니다. 기본 2회, 선택 0.5/1/2/3/4회.",
-  "version": "1.0.0",
+  "description": "Configure moveLiquid calls for Bridge Conduits and Phase Conduits. Choose 0.5, 1, 2, 3, or 4 calls per update. Default: 2.",
+  "version": "1.0.1",
   "minGameVersion": "150"
 }

@@ -57,9 +57,9 @@ Events.on(ContentInitEvent, cons(function(){
 }));
 
 Events.on(ClientLoadEvent, cons(function(){
-    Vars.ui.settings.addCategory("액체 다리", cons(function(table){
+    Vars.ui.settings.addCategory("Liquid Bridges", cons(function(table){
         table.sliderPref(rateKey, 2, 0, rates.length - 1, function(index){
-            return rates[index] + "회 / update";
+            return rates[index] + " calls / update";
         });
     }));
 }));

@@ -1,35 +1,36 @@
-# 액체 다리 이동 횟수 — Mindustry V8 JS 모드
+# Liquid Bridge Rate - Mindustry V8 JS Mod
 
-게임의 **모드 → 모드 가져오기 → GitHub에서 가져오기**에 다음을 입력하고 재시작하세요.
+In Mindustry, open **Mods > Import Mod > Import from GitHub**, enter the following repository, and restart the game:
 
 ```text
 cenoda/liquid-bridge-rate
 ```
 
-모드 탐색기에서는 **액체 다리 이동 횟수** 또는 **liquid-bridge-rate**로 검색할 수 있습니다.
-새 저장소는 탐색기 목록의 자동 갱신까지 몇 시간이 걸릴 수 있습니다.
-ZIP 파일을 내려받았다면 **모드 → 모드 가져오기 → 파일에서 가져오기**로 설치할 수도 있습니다.
+Once the mod is indexed, search the mod browser for **Liquid Bridge Rate** or **liquid-bridge-rate**.
+New repositories can take a few hours to appear after the browser list refreshes.
+You can also install a downloaded ZIP through **Mods > Import Mod > Import from File**.
 
-**설정 → 액체 다리**에서 0.5 / 1 / 2 / 3 / 4회를 선택합니다. 기본값은 2회이며 변경 즉시 적용됩니다.
+Open **Settings > Liquid Bridges** to select 0.5, 1, 2, 3, or 4 calls per update.
+The default is 2, and changes take effect immediately.
 
-| 설정 | 이동 가능한 update마다 moveLiquid() 호출 |
+| Setting | `moveLiquid()` calls per eligible update |
 | --- | --- |
-| 0.5회 | 2번의 update마다 1번 |
-| 1회 | 기존 호출 1번 |
-| 2회 (기본값) | 기존 호출 1번 + 추가 호출 1번 |
-| 3회 | 기존 호출 1번 + 추가 호출 2번 |
-| 4회 | 기존 호출 1번 + 추가 호출 3번 |
+| 0.5 | One call every two updates |
+| 1 | One vanilla call |
+| 2 (default) | One vanilla call plus one additional call |
+| 3 | One vanilla call plus two additional calls |
+| 4 | One vanilla call plus three additional calls |
 
-대상은 기본 액체 다리(`bridge-conduit`)와 위상 액체 다리(`phase-conduit`)입니다.
-다리의 연결 검사, 활성화 조건, 예열 조건과 출구의 주변 액체 배출은 기존 게임 동작을 따릅니다.
-0.5회에서 건너뛰는 것은 연결된 다리로의 이동이며, 다른 건물 업데이트는 계속 실행됩니다.
-호출할 때마다 액체 압력과 잔량을 다시 계산하므로, 호출 횟수가 실제 유량의 배수를 보장하지는 않습니다.
+The mod applies to the Bridge Conduit (`bridge-conduit`) and Phase Conduit (`phase-conduit`).
+Link validation, enabled-state checks, warmup requirements, and dumping liquid from the receiving bridge to nearby blocks follow vanilla behavior.
+At 0.5 calls per update, only transport to the linked bridge is skipped on alternate eligible updates; other building updates continue.
+Each call recalculates liquid pressure and available liquid, so the call count does not guarantee a proportional increase in actual flow.
 
-멀티플레이는 호스트/서버에 모드를 설치하고 그곳의 설정을 기준으로 사용하세요.
-참가자 설정으로 다른 서버의 동작을 변경할 수 없습니다. 전용 서버는 기본 2회로 작동합니다.
-같은 두 블록의 `buildType`을 교체하는 다른 모드와는 충돌할 수 있습니다.
-기존 JS 모드에 합칠 때는 `scripts/main.js` 코드와 `bundles` 항목을 함께 옮기고 게임을 재시작하세요.
+For multiplayer, install the mod on the host/server and use its settings.
+A joining player's settings cannot change another server's behavior. Dedicated servers use the default of 2 calls per update.
+Other mods that replace `buildType` for the same two blocks may conflict with this mod.
+To integrate this into an existing JS mod, copy `scripts/main.js` and the `bundles` entries, then restart the game.
 
-V8 build 160.7의 `LiquidBridge.LiquidBridgeBuild.updateTransport()`를 기준으로 작성했습니다.
-V8 build 160.7 전용 서버에서 모드 로드 및 두 다리의 설정별 이동 호출, 예열 조건,
-건물별 독립 동작, 즉시 설정 변경 등 42개 검증을 통과했습니다. 그래픽 설정 화면은 실행 검증하지 않았습니다.
+Based on `LiquidBridge.LiquidBridgeBuild.updateTransport()` in Mindustry V8 build 160.7.
+The mod passed 42 assertions on a V8 build 160.7 dedicated server, covering mod loading, call counts for both bridges,
+warmup requirements, independent building behavior, and immediate setting changes. The graphical settings screen has not been tested at runtime.
